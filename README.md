@@ -1,15 +1,42 @@
-# Mini Commerce API
+<div align="center">
+  <h1>Mini Commerce API</h1>
+  <p>RESTful backend API for e-commerce — built with Node.js, Express, and MongoDB.</p>
 
-RESTful backend API for e-commerce — built with Node.js, Express, and MongoDB.
+  <img src="https://skillicons.dev/icons?i=nodejs,express,mongodb,js" />
+</div>
+
+---
 
 ## Tech Stack
 
-- **Runtime** — Node.js
-- **Framework** — Express.js
-- **Database** — MongoDB + Mongoose
-- **Auth** — JWT (Access + Refresh Token)
-- **Docs** — Swagger UI
-- **Upload** — Multer
+<table>
+  <tr>
+    <td><img src="https://skillicons.dev/icons?i=nodejs" width="20"/> <b>Node.js</b></td>
+    <td>JavaScript runtime</td>
+  </tr>
+  <tr>
+    <td><img src="https://skillicons.dev/icons?i=express" width="20"/> <b>Express.js</b></td>
+    <td>Web framework</td>
+  </tr>
+  <tr>
+    <td><img src="https://skillicons.dev/icons?i=mongodb" width="20"/> <b>MongoDB + Mongoose</b></td>
+    <td>Database & ODM</td>
+  </tr>
+  <tr>
+    <td><img src="https://skillicons.dev/icons?i=js" width="20"/> <b>JWT</b></td>
+    <td>Access + Refresh Token auth</td>
+  </tr>
+  <tr>
+    <td><img src="https://upload.wikimedia.org/wikipedia/commons/a/ab/Swagger-logo.png" width="20"/> <b>Swagger UI</b></td>
+    <td>Interactive API documentation</td>
+  </tr>
+  <tr>
+    <td><img src="https://skillicons.dev/icons?i=postman" width="20"/> <b>Multer</b></td>
+    <td>File / image upload</td>
+  </tr>
+</table>
+
+---
 
 ## Getting Started
 
