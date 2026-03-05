@@ -11,7 +11,7 @@ const router = Router();
  * @swagger
  * tags:
  *   name: Auth
- *   description: Authentication endpoints
+ *   description: Register, login, token refresh and profile management
  */
 
 /**
@@ -31,21 +31,51 @@ const router = Router();
  *             properties:
  *               name:
  *                 type: string
- *                 example: John Doe
+ *                 minLength: 2
+ *                 maxLength: 50
+ *                 example: "John Doe"
  *               email:
  *                 type: string
- *                 example: john@example.com
+ *                 format: email
+ *                 example: "john@example.com"
  *               password:
  *                 type: string
- *                 example: secret123
+ *                 minLength: 6
+ *                 example: "secret123"
  *               phone:
  *                 type: string
  *                 example: "+998901234567"
  *     responses:
  *       201:
- *         description: Returns user + accessToken + refreshToken
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "User registered successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/AuthResponse'
  *       409:
  *         description: Email already in use
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               message: "Email already in use"
+ *       422:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
  */
 router.post(
   "/register",
@@ -62,7 +92,7 @@ router.post(
  * @swagger
  * /api/auth/login:
  *   post:
- *     summary: Login
+ *     summary: Login with email and password
  *     tags: [Auth]
  *     security: []
  *     requestBody:
@@ -75,15 +105,42 @@ router.post(
  *             properties:
  *               email:
  *                 type: string
- *                 example: john@example.com
+ *                 format: email
+ *                 example: "john@example.com"
  *               password:
  *                 type: string
- *                 example: secret123
+ *                 example: "secret123"
  *     responses:
  *       200:
- *         description: Returns user + accessToken + refreshToken
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Login successful"
+ *                 data:
+ *                   $ref: '#/components/schemas/AuthResponse'
  *       401:
  *         description: Invalid credentials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               message: "Invalid email or password"
+ *       422:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
  */
 router.post(
   "/login",
@@ -99,7 +156,10 @@ router.post(
  * @swagger
  * /api/auth/refresh:
  *   post:
- *     summary: Get new access token using refresh token
+ *     summary: Get a new access token using refresh token
+ *     description: |
+ *       Uses **token rotation** — the old refresh token is deleted and a brand new pair is returned.
+ *       Store the new refresh token after every call.
  *     tags: [Auth]
  *     security: []
  *     requestBody:
@@ -112,11 +172,32 @@ router.post(
  *             properties:
  *               refreshToken:
  *                 type: string
+ *                 example: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
  *     responses:
  *       200:
- *         description: New accessToken + refreshToken (rotation)
+ *         description: New token pair issued
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Tokens refreshed successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/AuthTokens'
  *       401:
  *         description: Invalid or expired refresh token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               message: "Refresh token expired"
  */
 router.post(
   "/refresh",
@@ -128,7 +209,8 @@ router.post(
  * @swagger
  * /api/auth/logout:
  *   post:
- *     summary: Logout (current device)
+ *     summary: Logout from current device
+ *     description: Deletes the given refresh token from the database.
  *     tags: [Auth]
  *     security: []
  *     requestBody:
@@ -141,9 +223,24 @@ router.post(
  *             properties:
  *               refreshToken:
  *                 type: string
+ *                 example: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
  *     responses:
  *       200:
  *         description: Logged out successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Logged out successfully"
+ *                 data:
+ *                   nullable: true
+ *                   example: null
  */
 router.post(
   "/logout",
@@ -156,12 +253,33 @@ router.post(
  * /api/auth/logout-all:
  *   post:
  *     summary: Logout from all devices
+ *     description: Deletes **all** refresh tokens of the current user.
  *     tags: [Auth]
  *     security:
  *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Logged out from all devices
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Logged out from all devices"
+ *                 data:
+ *                   nullable: true
+ *                   example: null
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post("/logout-all", protect, authController.logoutAll);
 
@@ -176,8 +294,25 @@ router.post("/logout-all", protect, authController.logoutAll);
  *     responses:
  *       200:
  *         description: User profile
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Profile fetched"
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
  *       401:
- *         description: Unauthorized
+ *         description: Unauthorized — missing or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get("/me", protect, authController.getMe);
 
@@ -185,7 +320,7 @@ router.get("/me", protect, authController.getMe);
  * @swagger
  * /api/auth/me:
  *   put:
- *     summary: Update user profile
+ *     summary: Update current user profile
  *     tags: [Auth]
  *     security:
  *       - BearerAuth: []
@@ -197,14 +332,36 @@ router.get("/me", protect, authController.getMe);
  *             properties:
  *               name:
  *                 type: string
+ *                 example: "Jane Doe"
  *               phone:
  *                 type: string
+ *                 example: "+998909876543"
  *               avatar:
  *                 type: string
  *                 format: binary
+ *                 description: Image file (jpg, png, webp — max 5MB)
  *     responses:
  *       200:
- *         description: Profile updated
+ *         description: Profile updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Profile updated"
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.put("/me", protect, upload.single("avatar"), authController.updateMe);
 

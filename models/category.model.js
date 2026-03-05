@@ -9,18 +9,34 @@ const mongoose = require("mongoose");
  *       properties:
  *         _id:
  *           type: string
+ *           example: "64a1f2b3c4d5e6f7a8b9c0d2"
  *         name:
  *           type: string
+ *           example: "Shoes"
  *         slug:
  *           type: string
+ *           example: "shoes"
  *         description:
  *           type: string
+ *           nullable: true
+ *           example: "All types of shoes"
  *         image:
  *           type: string
+ *           nullable: true
+ *           example: "/uploads/category-shoes.jpg"
  *         parent:
- *           type: string
+ *           nullable: true
+ *           oneOf:
+ *             - type: string
+ *               example: null
+ *             - $ref: '#/components/schemas/Category'
  *         isActive:
  *           type: boolean
+ *           example: true
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           example: "2024-01-10T08:00:00.000Z"
  */
 const categorySchema = new mongoose.Schema(
   {
