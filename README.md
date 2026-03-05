@@ -58,7 +58,6 @@ MONGO_URI=mongodb://localhost:27017/mini-commerce
 JWT_ACCESS_SECRET=your_secret_key
 JWT_ACCESS_EXPIRES_IN=15m
 JWT_REFRESH_EXPIRES_DAYS=30
-CLIENT_URL=http://localhost:3000
 API_URL=http://localhost:5000
 ```
 
